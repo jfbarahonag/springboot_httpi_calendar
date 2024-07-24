@@ -20,10 +20,10 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CalendarInterceptor implements HandlerInterceptor {
 
   @Value("${customers.support.startTime}")
-  private int startTime;
+  private String startTime;
   
   @Value("${customers.support.finishTime}")
-  private int finishTime;
+  private String finishTime;
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -31,14 +31,14 @@ public class CalendarInterceptor implements HandlerInterceptor {
     Calendar calendar = Calendar.getInstance();
     int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
 
-    boolean isValid = currentHour >= startTime && currentHour < finishTime;
+    boolean isValid = currentHour >= Integer.parseInt(finishTime) && currentHour < Integer.parseInt(finishTime);
 
     if (!isValid) {
       
       ObjectMapper mapper = new ObjectMapper();
       
       Map<String, Object> jsonObject = new HashMap<>();
-      jsonObject.put("message", "The customer support works between 07:00 and 18:00 hrs");
+      jsonObject.put("message", "The customer support works between " +  startTime + ":00 and " + finishTime + ":00 hrs");
       
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
       response.getWriter().write(mapper.writeValueAsString(jsonObject));
